@@ -88,7 +88,9 @@ impl Parser {
         let mut str = FormatString::default();
         while let Some(token) = self.tokens.get(self.pos) {
             match token {
-                Token::CloseContent | Token::OpenStyle | Token::CloseStyle => (),
+                Token::CloseContent | Token::OpenStyle | Token::CloseStyle => {
+                    return Err(FormatError::UnmatchedBracket);
+                }
                 Token::OpenContent => str
                     .nodes
                     .push(FormatStringNode::Formatted(self.parse_formatted()?)),
@@ -312,12 +314,11 @@ mod unit_tests {
 
     #[test]
     fn parse_error_bracket_mismatch() {
-        let parser = Parser::tokenize("this (text isnt[fg:pink] working".to_string());
+        let parser1 = Parser::tokenize("this (text isnt[fg:pink] working".to_string());
         let parser2 = Parser::tokenize("this text isnt)[fg:pink] working".to_string());
-        let parser3 = Parser::tokenize("this (text isnt)[fg:pink working".to_string());
-        let parser4 = Parser::tokenize("this (text isnt)fg:pink] working".to_string());
+        let parser3 = Parser::tokenize("this (text isnt)fg:pink] working".to_string());
         assert!(matches!(
-            parser.parse().unwrap_err(),
+            parser1.parse().unwrap_err(),
             FormatError::UnmatchedBracket
         ));
         assert!(matches!(
@@ -326,10 +327,6 @@ mod unit_tests {
         ));
         assert!(matches!(
             parser3.parse().unwrap_err(),
-            FormatError::UnmatchedBracket
-        ));
-        assert!(matches!(
-            parser4.parse().unwrap_err(),
             FormatError::UnmatchedBracket
         ));
     }

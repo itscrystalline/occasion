@@ -6,7 +6,7 @@ use std::{
 };
 
 use chrono::{Month, Weekday};
-use colored::{Color, Colorize, Style};
+use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
